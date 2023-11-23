@@ -1,8 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-import { ScryptProvider, PandaSigner, DefaultProvider, bsv} from "scrypt-ts";
+import { PandaSigner, DefaultProvider, bsv} from "scrypt-ts";
 import { Helloworld } from "./contracts/helloworld";
 
 
@@ -25,7 +25,7 @@ function App() {
     const deployTx =  await instance.deploy(1)
     
 console.log('contract deployed : ', deployTx.id)
-      const z = txid.current.value
+      const z = sum.current.value
   
       setTimeout(async () => {
       const { tx: callTx } = await instance.methods.unlock(BigInt(z))
@@ -39,25 +39,23 @@ console.log('contract deployed : ', deployTx.id)
 
   };
 
-  const txid = useRef<any>(null);
+  const sum = useRef<any>(null);
 
   return (
     <div className="App">
         <header className="App-header">
 
-        <h2 style={{ fontSize: '34px', paddingBottom: '5px', paddingTop: '5px'}}>integrate Front - End</h2>
+        <h2 >integrate Front - End</h2>
   
-        <div style={{ textAlign: 'center' }}>
+        <div>
           <h4>3 + 4 = ?, write the answer below</h4>
-            <label style={{ fontSize: '14px', paddingBottom: '5px' }}  
-                > 
-                    <input ref={txid} type="number"   placeholder="sum of two numbers above" />
+            <label> 
+                    <input ref={sum} type="number"   placeholder="sum of two numbers above" />
                 </label>     
             </div>
+            <br/>
         
-        <button onClick={interact}
-                style={{ fontSize: '14px', paddingBottom: '2px', marginLeft: '5px'}}
-        >Deploy & call</button>
+        <button onClick={interact}>Deploy & call</button>
                       
                                 
       </header>
