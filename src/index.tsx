@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { PandaProvider } from 'panda-wallet-provider/dist/context/PandaWalletContext';
 
-import { DemoNFT } from './contracts/mint';
-import artifact from '../artifacts/mint.json';
+import { Helloworld } from './contracts/helloworld';
+import artifact from '../artifacts/helloworld.json';
 
-DemoNFT.loadArtifact(artifact);
+Helloworld.loadArtifact(artifact);
+
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

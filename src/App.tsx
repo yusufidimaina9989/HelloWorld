@@ -1,137 +1,68 @@
-import React, { useRef, useState } from "react";
-import { Addr, PandaSigner, bsv } from "scrypt-ts";
-import {
-  OrdiMethodCallOptions,
-  OrdiNFTP2PKH,
-  OrdiProvider,
-  ContentType,
-} from "scrypt-ord";
-import { Button } from "@mui/material";
-import { DemoNFT } from "./contracts/mint";
-import { Wallet } from "@mui/icons-material";
+import React, { useRef, useState, useEffect } from 'react';
+import logo from './logo.svg';
+import './App.css';
 
-const App: React.FC = () => {
-  const signerRef = useRef<PandaSigner>();
+import { ScryptProvider, PandaSigner, DefaultProvider, bsv} from "scrypt-ts";
+import { Helloworld } from "./contracts/helloworld";
 
-  const [isConnected, setIsConnected] = useState(false);
 
-  const [image, setimage] = useState<string>("");
 
-  async function connect() {
-    const provider = new OrdiProvider(bsv.Networks.testnet);
-    const signer = new PandaSigner(provider);
+function App() {
 
-    signerRef.current = signer;
-    const { isAuthenticated, error } = await signer.requestAuth();
-    if (!isAuthenticated) {
-      throw new Error(`Unauthenticated: ${error}`);
-    }
+  const interact = async () => {
 
-    setIsConnected(true);
-  }
-
-  const handleConnect = async () => {
-    await connect();
-  };
-
-  const mint = async () => {
     try {
-      const signer = signerRef.current as PandaSigner;
-      await signer.connect();
-      const address = (await signer.getOrdAddress()).toByteString();
-      let instance = new DemoNFT(1n, 1n);
+
+      const provider = new DefaultProvider({network : bsv.Networks.testnet})
+      const signer = new PandaSigner(provider)
+
+        const { isAuthenticated, error } = await signer.requestAuth();
+        if (!isAuthenticated) {
+          throw new Error(error);
+        }
+      const instance = new Helloworld(3n, 4n)
       await instance.connect(signer);
+    const deployTx =  await instance.deploy(1)
+    
+console.log('contract deployed : ', deployTx.id)
+      const z = txid.current.value
   
-      const inscriptionTx = await instance.inscribeImage(image, ContentType.JPG);
-  
-      console.log("Inscription TXID: ", inscriptionTx.id);
-  
-  
-      // 5-second delay before transferring
       setTimeout(async () => {
-        try {
-          const { tx: unlockTx } = await instance.methods.unlock(2n, {
-            transfer: new OrdiNFTP2PKH(Addr(address)),
-          } as OrdiMethodCallOptions<DemoNFT>);
-  
-          console.log("Unlocked NFT: ", unlockTx.id);
-        } catch (unlockError) {
-          console.error("Error during unlock:", unlockError);
-        }
-      }, 5000); // 5000 milliseconds = 5 seconds
-    } catch (error) {
-      console.error("Error in mint function:", error);
+      const { tx: callTx } = await instance.methods.unlock(BigInt(z))
+      console.log('Helloworld contract `unlock` called: ', callTx.id)
+      alert('contract called : ' + callTx.id)
+    }, 5000);
+    } catch (e) {
+      console.error('deploy HelloWorld fails', e)
+      alert('deploy HelloWorld fails')
     }
+
   };
-  
-  
-  const handleFileInput = (event) => {
-    const file = event.target.files[0];
 
-    if (file) {
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        if (e.target.result instanceof ArrayBuffer) {
-          const uint8Array = new Uint8Array(e.target.result);
-          const base64Data = btoa(String.fromCharCode.apply(null, uint8Array));
-          // Now, 'base64Data' contains the base64-encoded image data
-          console.log(base64Data);
-          setimage(base64Data);
-          const imageElement = document.getElementById(
-            "imagePreview"
-          ) as HTMLImageElement;
-          imageElement.src = `data:image/jpg;base64, ${base64Data}`;
-        } else {
-          console.error("Unsupported data type");
-        }
-        // Update the state with the base64 data
-      };
-
-      reader.readAsArrayBuffer(file);
-    }
-  };
+  const txid = useRef<any>(null);
 
   return (
-    <div>
-      {isConnected ? (
-        <div style={{ padding: "25px" }}>
-          
-          <br />
-          <input type="file" onChange={handleFileInput} />
-          <br />
+    <div className="App">
+        <header className="App-header">
 
-          <img id="imagePreview" alt="preview" height={400} width={350} />
-          <br />
-
-          <Button
-            variant="contained"
-            color="success"
-            onClick={mint}
-            sx={{ marginTop: 2 }}>
-            Mint & Transfer
-          </Button>
-        </div>
-      ) : (
-        <div
-          style={{
-            height: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}>
-          <Button
-            startIcon={<Wallet />}
-            variant="contained"
-            color="success"
-            size="large"
-            onClick={handleConnect}>
-            Connect Wallet
-          </Button>
-        </div>
-      )}
+        <h2 style={{ fontSize: '34px', paddingBottom: '5px', paddingTop: '5px'}}>integrate Front - End</h2>
+  
+        <div style={{ textAlign: 'center' }}>
+          <h4>3 + 4 = ?, write the answer below</h4>
+            <label style={{ fontSize: '14px', paddingBottom: '5px' }}  
+                > 
+                    <input ref={txid} type="number"   placeholder="sum of two numbers above" />
+                </label>     
+            </div>
+        
+        <button onClick={interact}
+                style={{ fontSize: '14px', paddingBottom: '2px', marginLeft: '5px'}}
+        >Deploy & call</button>
+                      
+                                
+      </header>
     </div>
   );
-};
+}
 
 export default App;

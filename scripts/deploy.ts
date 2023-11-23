@@ -1,5 +1,5 @@
 import { writeFileSync } from 'fs'
-import { ManageInspectors } from '../src/contracts/todolist'
+import { Helloworld } from '../src/contracts/helloworld'
 import { privateKey } from './privateKey'
 import { bsv, TestWallet, DefaultProvider, sha256 } from 'scrypt-ts'
 
@@ -12,7 +12,7 @@ function getScriptHash(scriptPubKeyHex: string) {
 }
 
 async function main() {
-    await ManageInspectors.compile()
+    await Helloworld.compile()
 
     // Prepare signer. 
     // See https://scrypt.io/docs/how-to-deploy-and-call-a-contract/#prepare-a-signer-and-provider
@@ -23,7 +23,7 @@ async function main() {
     // TODO: Adjust the amount of satoshis locked in the smart contract:
     const amount = 1
 
-    const instance = new ManageInspectors()
+    const instance = new Helloworld(3n, 4n)
 
     // Connect to a signer.
     await instance.connect(signer)
